@@ -6,6 +6,53 @@ Format: newest first.
 
 ---
 
+## [0.3.1] — 2026-06-03 — Add TripAdvisor to voice travel agent
+
+**Type:** Spec change | Fix
+**Scope:** product-spec | implementation-plan | test-plan | README
+
+### Changed
+
+- Added TripAdvisor as the enrichment source for hotel and destination recommendations.
+- Updated the product direction to voice-first travel planning with Qwen/Ollama backend support.
+- Reworked docs and tests to reflect provider abstraction and external travel data retrieval.
+
+### Why
+
+- The user chose TripAdvisor API integration for destination and hotel discovery as part of the new voice travel agent direction.
+
+### Impact on implementation
+
+- Backend needs a TripAdvisor client/service layer and graceful fallback when the API is unavailable.
+- Manual and automated tests should cover enrichment paths as well as fallback behavior.
+- README and env examples should document provider + TripAdvisor configuration instead of Azure-specific setup.
+
+---
+
+## [0.3.0] — 2026-06-03 — Shift to voice travel agent with Qwen/Ollama
+
+**Type:** Spec change | Fix
+**Scope:** product-spec | implementation-plan
+
+### Changed
+
+- Reframed the product from a text-first travel advisor to a voice-first travel agent.
+- Replaced Azure OpenAI integration language with Qwen and Ollama model/provider support.
+- Updated environment variable expectations to reflect configurable local or hosted model backends.
+- Updated the implementation plan to emphasize voice-first UI and provider abstraction.
+
+### Why
+
+- The product direction changed to an audio/voice workflow and should no longer depend on Azure OpenAI.
+
+### Impact on implementation
+
+- Backend should route through a provider abstraction rather than Azure-specific client setup.
+- Frontend and future test scenarios should reflect voice capture / voice reply workflows.
+- Existing Azure OpenAI-specific docs and environment setup should be removed or replaced.
+
+---
+
 ## [0.2.1] — 2026-05-23 — Switch backend to Azure OpenAI
 
 **Type:** Spec change | Fix

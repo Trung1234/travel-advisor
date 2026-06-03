@@ -4,7 +4,7 @@ import sys
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from openai import OpenAIError
+from openai import APIError, OpenAIError
 
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -18,7 +18,7 @@ else:
     from .memory import append_message, get_history
     from .schemas import ChatRequest, ChatResponse, HealthResponse
 
-app = FastAPI(title="Travel Advisor API", version="0.1.0")
+app = FastAPI(title="Voice Travel Agent API", version="0.2.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -43,8 +43,8 @@ def chat(payload: ChatRequest) -> ChatResponse:
         reply = get_reply(payload.message, history)
     except RuntimeError as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    except OpenAIError as exc:
-        raise HTTPException(status_code=502, detail=f"OpenAI request failed: {exc}")
+    except (OpenAIError, APIError) as exc:
+        raise HTTPException(status_code=502, detail=f"Model request failed: {exc}")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Failed to generate reply: {exc}")
 
