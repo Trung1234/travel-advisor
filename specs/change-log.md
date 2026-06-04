@@ -6,6 +6,27 @@ Format: newest first.
 
 ---
 
+## [0.4.0] — 2026-06-04 — Replace TripAdvisor with SerpAPI & Add Voice-Enable Button
+
+**Type:** Spec change | Feature  
+**Scope:** product-spec | implementation-plan | test-plan | README  
+
+### Changed
+
+- Replaced TripAdvisor integration with SerpAPI Google Search integration for destination/hotel/weather/food enrichment.
+- Added support for a native browser speech-to-text (Web Speech API) voice input button in the Streamlit frontend.
+
+### Why
+
+- The user requested swapping the TripAdvisor enrichment with SerpAPI, and adding a voice-enable button in the frontend.
+
+### Impact on implementation
+
+- Backend config and client updated to use SerpAPI endpoints instead of TripAdvisor.
+- A custom browser-based speech component added to the frontend to transcribe and submit user voice input.
+
+---
+
 ## [0.3.1] — 2026-06-03 — Add TripAdvisor to voice travel agent
 
 **Type:** Spec change | Fix

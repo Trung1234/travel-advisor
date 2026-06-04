@@ -9,9 +9,9 @@
 
 | Level | Scope | Tool |
 |-------|--------|------|
-| Unit | Skill loader, schemas, memory store, provider adapter, TripAdvisor client | pytest |
-| API | `/health`, `/api/v1/chat` (mocked model + mocked TripAdvisor) | pytest + httpx TestClient |
-| Manual | Full UI + real provider + optional TripAdvisor calls | Browser + checklist |
+| Unit | Skill loader, schemas, memory store, provider adapter, SerpAPI client | pytest |
+| API | `/health`, `/api/v1/chat` (mocked model + mocked SerpAPI) | pytest + httpx TestClient |
+| Manual | Full UI + real provider + optional SerpAPI calls | Browser + checklist |
 | Contract | OpenAPI matches implementation | FastAPI `/openapi.json` review |
 
 No E2E browser automation required for MVP.
@@ -36,13 +36,13 @@ No E2E browser automation required for MVP.
 | AT-5 | Conversation continuity | Two posts with same `conversation_id` | Same id returned; agent receives prior context (mock asserts call count/history) |
 | AT-6 | Provider failure | Mock provider to raise | `502` or `500` with `detail` message |
 
-### 2.3 TripAdvisor integration
+### 2.3 SerpAPI integration
 
 | ID | Case | Expected |
 |----|------|----------|
-| AT-7 | TripAdvisor client success | Returns normalized destination/hotel results |
-| AT-8 | TripAdvisor client failure | Falls back safely without breaking chat flow |
-| AT-9 | TripAdvisor request for hotel/destination | Agent includes retrieved context when available |
+| AT-7 | SerpAPI client success | Returns search results |
+| AT-8 | SerpAPI client failure | Falls back safely without breaking chat flow |
+| AT-9 | SerpAPI request for search context | Agent includes retrieved context when available |
 
 ### 2.4 Skill loader
 
@@ -63,13 +63,13 @@ No E2E browser automation required for MVP.
 
 ## 3. Manual test scenarios
 
-**Setup:** API running on port 8000, Streamlit on 8501, configured provider runtime, and TripAdvisor credentials if testing enrichment.
+**Setup:** API running on port 8000, Streamlit on 8501, configured provider runtime, and SerpAPI credentials if testing enrichment.
 
 | ID | Scenario | Steps | Pass criteria |
 |----|----------|-------|----------------|
 | MT-1 | App loads | Open Streamlit URL | Chat UI visible, no crash |
-| MT-2 | Destination advice | Ask: “Suggest 3 cities in Italy for food and art in September” | Reply lists destinations with short rationale; TripAdvisor enrichment used if available |
-| MT-3 | Hotels | Follow up: “Mid-range hotels in Florence” | Hotel-style suggestions; mentions budget alignment; TripAdvisor data used when available |
+| MT-2 | Destination advice | Ask: “Suggest 3 cities in Italy for food and art in September” | Reply lists destinations with short rationale; SerpAPI enrichment used if available |
+| MT-3 | Hotels | Follow up: “Mid-range hotels in Florence” | Hotel-style suggestions; mentions budget alignment; SerpAPI data used when available |
 | MT-4 | Weather | Ask: “What’s the weather like in Florence in September?” | Weather description; disclaimer if approximate |
 | MT-5 | Food | Ask: “Where should I eat in Florence?” | Food areas or restaurant types named |
 | MT-6 | Clarifying questions | Ask: “I want a vacation” (vague) | Agent asks for destination/dates/budget |

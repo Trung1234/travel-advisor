@@ -1,38 +1,36 @@
 from functools import lru_cache
 
+# pyrefly: ignore [missing-import]
 from openai import OpenAI
 
 from .config import settings
 from .skill_loader import load_skill
-from .tripadvisor_client import TripAdvisorClientError, get_tripadvisor_places
+from .serpapi_client import SerpApiClientError, get_serpapi_results
 
 
 SKILL_PROMPT = load_skill(settings.skill_file_path)
 
 
-def _format_tripadvisor_context(message: str) -> str:
+def _format_serpapi_context(message: str) -> str:
     lower_message = message.lower()
-    if not any(keyword in lower_message for keyword in ("hotel", "stay", "destination", "city", "where", "place", "area")):
+    if not any(keyword in lower_message for keyword in ("hotel", "stay", "destination", "city", "where", "place", "area", "weather", "food", "dining", "restaurant", "eat")):
         return ""
 
-    category = "hotels" if any(keyword in lower_message for keyword in ("hotel", "stay")) else "destinations"
     try:
-        places = get_tripadvisor_places(message, category=category)
-    except TripAdvisorClientError:
+        results = get_serpapi_results(message)
+    except SerpApiClientError:
         return ""
 
-    if not places:
+    if not results:
         return ""
 
-    lines = ["TripAdvisor context:"]
-    for place in places:
-        parts = [place.name]
-        if place.rating is not None:
-            parts.append(f"rating={place.rating:.1f}")
-        if place.review_count is not None:
-            parts.append(f"reviews={place.review_count}")
-        if place.address:
-            parts.append(f"address={place.address}")
+    lines = ["Search context:"]
+    for res in results:
+        parts = [f"Title: {res.title}"]
+        if res.snippet:
+            parts.append(f"Snippet: {res.snippet}")
+        if res.link:
+            parts.append(f"Link: {res.link}")
         lines.append("- " + "; ".join(parts))
     return "\n".join(lines)
 
@@ -51,9 +49,9 @@ def get_client() -> OpenAI:
 
 def get_reply(message: str, history: list[dict[str, str]]) -> str:
     messages = [*history, {"role": "user", "content": message}]
-    tripadvisor_context = _format_tripadvisor_context(message)
-    if tripadvisor_context:
-        messages.insert(-1, {"role": "system", "content": tripadvisor_context})
+    serpapi_context = _format_serpapi_context(message)
+    if serpapi_context:
+        messages.insert(-1, {"role": "system", "content": serpapi_context})
 
     client = get_client()
     model_name = settings.ollama_model if settings.model_provider.lower().strip() == "ollama" else settings.qwen_model
