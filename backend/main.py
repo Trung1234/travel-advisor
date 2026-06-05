@@ -57,7 +57,7 @@ def chat(payload: ChatRequest) -> ChatResponse:
     return ChatResponse(reply=reply, conversation_id=conversation_id)
 
 
-@app.post("/api/v1/tts", response_model=TTSResponse)
+@app.post("/api/v1/tts", response_class=Response)
 def tts(payload: TTSRequest) -> Response:
     try:
         audio_bytes = synthesize_wav_bytes(payload.text)

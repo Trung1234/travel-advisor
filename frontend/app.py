@@ -35,8 +35,19 @@ if "last_voice_ts" not in st.session_state:
     st.session_state.last_voice_ts = 0
 if "pending_prompt" not in st.session_state:
     st.session_state.pending_prompt = ""
+if "pending_tts_text" not in st.session_state:
+    st.session_state.pending_tts_text = ""
 if "tts_enabled" not in st.session_state:
     st.session_state.tts_enabled = True
+
+
+def queue_prompt(prompt: str):
+    st.session_state.pending_prompt = prompt.strip()
+    st.session_state.user_message = ""
+
+
+def queue_tts(text: str):
+    st.session_state.pending_tts_text = text
 
 
 def play_backend_tts(text: str):
@@ -49,7 +60,7 @@ def play_backend_tts(text: str):
 def handle_send():
     prompt = st.session_state.user_message.strip()
     if prompt:
-        st.session_state.pending_prompt = prompt
+        queue_prompt(prompt)
     st.session_state.user_message = ""
 
 
@@ -105,14 +116,22 @@ if prompt:
                 st.session_state.conversation_id = result["conversation_id"]
                 st.markdown(reply)
                 st.session_state.messages.append({"role": "assistant", "content": reply})
-                try:
-                    play_backend_tts(reply)
-                except Exception as tts_exc:
-                    st.warning(f"TTS unavailable: {tts_exc}")
+                queue_tts(reply)
             except ApiClientError as exc:
                 st.error(f"Could not reach API: {exc}")
             except Exception as exc:
                 st.error(f"Unexpected error: {exc}")
     st.rerun()
+
+pending_tts_text = st.session_state.pending_tts_text
+if pending_tts_text and st.session_state.tts_enabled:
+    st.session_state.pending_tts_text = ""
+    try:
+        with st.spinner("Generating audio..."):
+            play_backend_tts(pending_tts_text)
+    except ApiClientError as exc:
+        st.warning(f"TTS unavailable: {exc}")
+    except Exception as exc:
+        st.warning(f"TTS unavailable: {exc}")
 
 st.caption("Voice capture is powered by browser-native Web Speech API. Text fallback is supported.")
