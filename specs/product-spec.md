@@ -53,12 +53,17 @@ A voice-based travel agent where users speak about a trip and receive AI-generat
 - **POST `/api/v1/chat`**
   - Request body: `{ "message": string, "conversation_id"?: string }`
   - Response body: `{ "reply": string, "conversation_id": string }`
+- **POST `/api/v1/tts`**
+  - Request body: `{ "text": string }`
+  - Response body: binary `audio/wav`
+  - Use a local backend TTS engine so the frontend can play spoken replies
 - OpenAPI 3 schema auto-generated at `/docs` and `/openapi.json`.
 - Health check: **GET `/health`** → `{ "status": "ok" }`.
 - CORS enabled for local Streamlit origin.
 - Support voice-agent orchestration in the application flow.
 - Load model/provider settings from environment.
 - Inject travel consultant skill content into the model context.
+- Generate spoken output server-side for assistant replies.
 
 ### 6.3 Travel consultant skill
 

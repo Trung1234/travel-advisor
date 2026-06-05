@@ -12,7 +12,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 load_dotenv(PROJECT_ROOT / ".env")
 
-from frontend.api_client import ApiClientError, send_chat_message
+from frontend.api_client import ApiClientError, request_tts_audio, send_chat_message
 # pyrefly: ignore [missing-import]
 import streamlit.components.v1 as components
 
@@ -35,6 +35,16 @@ if "last_voice_ts" not in st.session_state:
     st.session_state.last_voice_ts = 0
 if "pending_prompt" not in st.session_state:
     st.session_state.pending_prompt = ""
+if "tts_enabled" not in st.session_state:
+    st.session_state.tts_enabled = True
+
+
+def play_backend_tts(text: str):
+    if not st.session_state.tts_enabled:
+        return
+    audio_bytes = request_tts_audio(st.session_state.api_base_url, text)
+    st.audio(audio_bytes, format="audio/wav")
+
 
 def handle_send():
     prompt = st.session_state.user_message.strip()
@@ -42,9 +52,11 @@ def handle_send():
         st.session_state.pending_prompt = prompt
     st.session_state.user_message = ""
 
+
 st.sidebar.header("Voice-first tips")
 st.sidebar.write("Use text input as a fallback if browser voice capture is unavailable.")
 st.sidebar.write("Ask for destinations, hotels, weather, or food to trigger SerpAPI enrichment when available.")
+st.sidebar.checkbox("🔊 Read replies aloud", key="tts_enabled")
 
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
@@ -53,21 +65,18 @@ for msg in st.session_state.messages:
 if "user_message" not in st.session_state:
     st.session_state.user_message = ""
 
-# Text input for manual messages or showing the voice transcript placeholder
 voice_note = st.text_input(
     "Voice transcript or typed message",
     placeholder="Ask about your trip",
-    key="user_message"
+    key="user_message",
 )
 
-# Voice Button and Send button
 col1, col2 = st.columns([1, 4])
 with col1:
     st.button("Send", use_container_width=True, on_click=handle_send)
 with col2:
     voice_data = voice_button(key="voice_input")
 
-# Handle Voice Component transcription
 if voice_data and isinstance(voice_data, dict):
     ts = voice_data.get("timestamp", 0)
     text = voice_data.get("text", "").strip()
@@ -75,7 +84,6 @@ if voice_data and isinstance(voice_data, dict):
         st.session_state.last_voice_ts = ts
         st.session_state.pending_prompt = text
 
-# Choose source of prompt
 prompt = st.session_state.pending_prompt
 if prompt:
     st.session_state.pending_prompt = ""
@@ -97,6 +105,10 @@ if prompt:
                 st.session_state.conversation_id = result["conversation_id"]
                 st.markdown(reply)
                 st.session_state.messages.append({"role": "assistant", "content": reply})
+                try:
+                    play_backend_tts(reply)
+                except Exception as tts_exc:
+                    st.warning(f"TTS unavailable: {tts_exc}")
             except ApiClientError as exc:
                 st.error(f"Could not reach API: {exc}")
             except Exception as exc:

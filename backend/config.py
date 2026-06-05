@@ -23,6 +23,11 @@ class Settings(BaseSettings):
     serpapi_limit: int = 5
     skill_file_path: str = "skills/travel-consultant/SKILL.md"
     cors_origins: list[str] = ["http://localhost:8501"]
+    tts_engine: str = "pyttsx3"
+    tts_voice: str | None = None
+    tts_rate: int = 180
+    tts_volume: float = 1.0
+
 
     model_config = SettingsConfigDict(env_file=ENV_FILE, env_file_encoding="utf-8", extra="ignore")
 
