@@ -13,12 +13,10 @@ load_dotenv(ENV_FILE)
 
 
 class Settings(BaseSettings):
-    model_provider: str = "ollama"
-    qwen_model: str = "qwen2.5-coder:7b"
-    qwen_base_url: str | None = None
-    qwen_api_key: str | None = None
-    ollama_base_url: str = "http://localhost:11434"
-    ollama_model: str = "qwen2.5-coder:7b"
+    azure_openai_api_key: str | None = None
+    azure_openai_endpoint: str | None = None
+    azure_openai_deployment: str | None = None
+    azure_openai_api_version: str = "2024-12-01-preview"
     serpapi_api_key: str | None = None
     serpapi_limit: int = 5
     skill_file_path: str = "skills/travel-consultant/SKILL.md"
@@ -27,7 +25,6 @@ class Settings(BaseSettings):
     tts_voice: str | None = None
     tts_rate: int = 180
     tts_volume: float = 1.0
-
 
     model_config = SettingsConfigDict(env_file=ENV_FILE, env_file_encoding="utf-8", extra="ignore")
 

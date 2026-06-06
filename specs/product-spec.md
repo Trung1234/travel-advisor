@@ -80,9 +80,9 @@ Must instruct the agent to:
 
 ### 6.4 Model/provider integration
 
-- Support **Qwen** as the primary model family.
-- Support **Ollama** for local model execution.
-- Provider, model name, and base URL are configurable via environment variables.
+- Support **Azure OpenAI** as the model provider for chat generation.
+- Provider endpoint, API key, API version, and deployment name are configurable via environment variables.
+- Single-turn or short multi-turn context within the same `conversation_id` (in-memory for MVP).
 - Single-turn or short multi-turn context within the same `conversation_id` (in-memory for MVP).
 
 ## 7. Non-functional requirements
@@ -128,10 +128,10 @@ Must instruct the agent to:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `MODEL_PROVIDER` | Yes | `qwen` or `ollama` |
-| `QWEN_MODEL` | Optional | Qwen model name when using hosted/local Qwen runtime |
-| `OLLAMA_BASE_URL` | Optional | Ollama server URL (default `http://localhost:11434`) |
-| `OLLAMA_MODEL` | Optional | Ollama model name |
+| `AZURE_OPENAI_API_KEY` | Yes | Azure OpenAI API key |
+| `AZURE_OPENAI_ENDPOINT` | Yes | Azure OpenAI endpoint URL |
+| `AZURE_OPENAI_DEPLOYMENT` | Yes | Azure OpenAI deployment name |
+| `AZURE_OPENAI_API_VERSION` | No | Azure OpenAI API version (default `2024-12-01-preview`) |
 | `API_BASE_URL` | No | Used by Streamlit (default `http://localhost:8000`) |
 
 ## 10. Success criteria (MVP)

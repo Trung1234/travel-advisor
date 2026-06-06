@@ -1,6 +1,6 @@
 # Voice Travel Agent AI
 
-A voice-first travel agent MVP powered by **Qwen** with **Ollama** support. Users can speak or type in a **Streamlit** UI; a **FastAPI** backend exposes an OpenAPI-documented API and runs the agent logic. A **travel consultant skill** defines how the agent recommends destinations, hotels, weather, and food, and the backend can enrich answers with **SerpAPI** search context and now generates spoken replies through a local backend TTS endpoint.
+A voice-first travel agent MVP powered by **Azure OpenAI**. Users can speak or type in a **Streamlit** UI; a **FastAPI** backend exposes an OpenAPI-documented API and runs the agent logic. A **travel consultant skill** defines how the agent recommends destinations, hotels, weather, and food, and the backend can enrich answers with **SerpAPI** search context and now generates spoken replies through a local backend TTS endpoint.
 
 ## Status
 
@@ -12,7 +12,7 @@ A voice-first travel agent MVP powered by **Qwen** with **Ollama** support. User
 |-------|------------|
 | UI | Streamlit (Python) |
 | API | FastAPI + OpenAPI |
-| Agent | Qwen via provider abstraction; Ollama for local runtime |
+| Agent | Azure OpenAI chat completions |
 | Retrieval | SerpAPI search context for destination/hotel/weather/food enrichment |
 | TTS | Local backend TTS (`pyttsx3`) returning `audio/wav` |
 | Guidance | Travel consultant skill file (`skills/travel-consultant/SKILL.md`) |
@@ -56,7 +56,7 @@ travel-advisor/
 ## Prerequisites
 
 - Python 3.11+
-- Qwen access or a local Ollama server
+- Azure OpenAI access
 - SerpAPI credentials if you want destination/hotel/weather/food enrichment
 - Local speech support for `pyttsx3` on your platform
 
@@ -65,8 +65,8 @@ travel-advisor/
 1. Create and activate a Python virtual environment.
 2. Install dependencies:
    - `pip install -r requirements.txt`
-3. Copy `.env.example` to `.env` and set provider, SerpAPI, and TTS variables.
-4. Start Ollama locally if you are using the local runtime.
+3. Copy `.env.example` to `.env` and set Azure OpenAI, SerpAPI, and TTS variables.
+4. Make sure your Azure OpenAI deployment name matches `AZURE_OPENAI_DEPLOYMENT`.
 5. Start API:
    - `uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000`
 6. Start UI:

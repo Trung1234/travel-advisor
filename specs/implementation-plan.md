@@ -44,9 +44,9 @@ No code beyond the markdown skill file in this phase.
 
 | # | Task | Output |
 |---|------|--------|
-| 2.1 | `backend/config.py` — settings from env | `Settings` class |
+| 2.1 | `backend/config.py` — settings from env | Azure OpenAI + app settings |
 | 2.2 | `backend/skill_loader.py` — read SKILL.md | String for system prompt |
-| 2.3 | `backend/agent.py` — Qwen/Ollama chat call with skill + history | `get_reply(message, history)` |
+| 2.3 | `backend/agent.py` — AzureOpenAI chat call with skill + history | `get_reply(message, history)` |
 | 2.4 | `backend/memory.py` — in-memory dict by `conversation_id` | MVP session store |
 | 2.5 | `backend/main.py` — FastAPI app, CORS, routes | `/health`, `/api/v1/chat` |
 | 2.6 | `backend/schemas.py` — Pydantic request/response models | OpenAPI types |
