@@ -14,7 +14,7 @@ A voice-first travel agent MVP powered by **Azure OpenAI**. Users can speak or t
 | API | FastAPI + OpenAPI |
 | Agent | Azure OpenAI chat completions |
 | Retrieval | SerpAPI search context for destination/hotel/weather/food enrichment |
-| TTS | Local backend TTS (`pyttsx3`) returning `audio/wav` |
+| TTS | Local backend TTS (`pyttsx3`) returning `audio/wav` — configurable via `TTS_ENGINE` |
 | Guidance | Travel consultant skill file (`skills/travel-consultant/SKILL.md`) |
 
 ## Architecture
@@ -27,8 +27,8 @@ flowchart LR
     API --> Memory[In-memory conversation store<br/>backend/memory.py]
     API --> Skill[Travel consultant skill<br/>skills/travel-consultant/SKILL.md]
     API --> Agent[Agent orchestration<br/>backend/agent.py]
-    API --> TTS[Local TTS engine<br/>backend/tts.py + pyttsx3]
-    Agent --> Provider[Qwen / Ollama]
+    API --> TTS[Local TTS engine<br/>backend/tts.py]
+    Agent --> Provider[Azure OpenAI<br/>chat completions]
     Agent --> SerpAPI[SerpAPI search context]
     Provider --> Agent
     SerpAPI --> Agent
@@ -58,7 +58,7 @@ travel-advisor/
 - Python 3.11+
 - Azure OpenAI access
 - SerpAPI credentials if you want destination/hotel/weather/food enrichment
-- Local speech support for `pyttsx3` on your platform
+- Platform TTS support for `pyttsx3` (Windows Speech API, macOS `nsss`, Linux `espeak`)
 
 ## Getting started
 
