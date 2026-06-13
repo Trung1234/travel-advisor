@@ -6,6 +6,22 @@ Format: newest first.
 
 ---
 
+## [0.4.1] — 2026-06-13 — Add Guideline for Redis Short-Term Memory
+
+**Type:** Spec change  
+**Scope:** shorterm-memory-guideline.md  
+
+### Added
+- Created `shorterm-memory-guideline.md` to guide the developer on migrating short-term chat memory from in-memory dictionary to Redis.
+
+### Why
+- The user requested a guidance document outlining how to integrate Redis for short-term chat session persistence instead of volatile in-memory dictionary storage.
+
+### Impact on implementation
+- Provides blueprints and instructions for updating dependencies, configuration, and `backend/memory.py` when transitioning to Redis.
+
+---
+
 ## [0.4.0] — 2026-06-04 — Replace TripAdvisor with SerpAPI & Add Voice-Enable Button
 
 **Type:** Spec change | Feature  
