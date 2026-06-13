@@ -25,6 +25,7 @@ httpx
 pydantic-settings
 python-dotenv
 ollama
+redis
 ```
 
 ---
@@ -44,10 +45,10 @@ No code beyond the markdown skill file in this phase.
 
 | # | Task | Output |
 |---|------|--------|
-| 2.1 | `backend/config.py` — settings from env | Azure OpenAI + app settings |
+| 2.1 | `backend/config.py` — settings from env | Azure OpenAI + app settings + Redis configuration |
 | 2.2 | `backend/skill_loader.py` — read SKILL.md | String for system prompt |
 | 2.3 | `backend/agent.py` — AzureOpenAI chat call with skill + history | `get_reply(message, history)` |
-| 2.4 | `backend/memory.py` — in-memory dict by `conversation_id` | MVP session store |
+| 2.4 | `backend/memory.py` — Redis list-based session history | Persistent storage with in-memory fallback |
 | 2.5 | `backend/main.py` — FastAPI app, CORS, routes | `/health`, `/api/v1/chat` |
 | 2.6 | `backend/schemas.py` — Pydantic request/response models | OpenAPI types |
 
@@ -133,6 +134,33 @@ backend/
 | 5.3 | Manual scenarios from test-plan | Checklist signed off |
 
 **Run tests:** `pytest` (add `pytest`, `pytest-asyncio` to dev deps if needed)
+
+---
+
+## Phase 7 — Production RAG System (Future Target)
+
+| # | Task | Output |
+|---|------|--------|
+| 7.1 | Ingestion pipeline setup | Structured content extraction and metadata indexing |
+| 7.2 | Structural chunking layer | Bullet-proof document chunking rules (300–800 tokens) |
+| 7.3 | Vector database integration | Store embeddings and enable hybrid (vector + text) queries |
+| 7.4 | Reranking service | Cross-encoder or LLM-based reranking |
+| 7.5 | Grounded prompt design & citations | Ground generation in chunks and list source references |
+| 7.6 | Hallucination guardrails & security | Refusal when evidence is insufficient, RBAC filtering, injection defense |
+| 7.7 | Continuous evaluation & monitoring | Retrieval and generation metrics (recall, precision, MRR, correctness) |
+
+---
+
+## Phase 8 — Low-Latency Voice Streaming (Future Target)
+
+| # | Task | Output |
+|---|------|--------|
+| 8.1 | Persistent WebSocket client/server | Enable bidirectional real-time audio transport |
+| 8.2 | Streaming STT integration | Azure Speech real-time STT with partial results forwarded immediately |
+| 8.3 | Streaming LLM integration | Token-by-token generation streamed to TTS pipeline |
+| 8.4 | Streaming TTS integration | Incremental audio generation and playout |
+| 8.5 | Voice Activity Detection (VAD) | Quick conversational turn-taking via client or server VAD |
+| 8.6 | Colocated Azure deployments | Same-region hosting (FastAPI, LLM, STT/TTS) to achieve <1s latency |
 
 ---
 

@@ -6,6 +6,29 @@ Format: newest first.
 
 ---
 
+## [0.5.0] — 2026-06-13 — Integrate Redis Session Memory & Update Production Specs
+
+**Type:** Spec change & Feature
+**Scope:** product-spec | implementation-plan | test-plan | README | backend code
+
+### Added
+- Integrated `redis` dependency in requirements.txt.
+- Added Redis environment parameters to `.env` and `.env.example`.
+- Implemented list-based Redis short-term memory layer in `backend/memory.py` with automatic in-memory dict fallback.
+- Added Redis mocking and fallback behavior tests in `tests/test_chat.py`.
+- Updated future/post-MVP plans in `specs/product-spec.md` and `specs/implementation-plan.md` to define production-grade RAG pipelines and streaming low-latency voice architecture as per `travel-production.md` guidelines.
+- Updated `specs/test-plan.md` to define automated and manual test scenarios for Redis persistence.
+- Documented Redis requirements and Docker execution instructions in `README.md`.
+
+### Why
+- The user requested applying the instructions in `shorterm-memory-guideline.md` (migrating short-term memory to Redis) and `travel-production.md` (incorporating production-grade RAG and streaming latency optimizations).
+
+### Impact on implementation
+- Session history is now persisted securely inside Redis and remains resilient through API server restarts.
+- Future roadmap explicitly defines implementation phases for ingestion, structural chunking, hybrid vector search, and WebSocket-based voice streaming pipelines.
+
+---
+
 ## [0.4.1] — 2026-06-13 — Add Guideline for Redis Short-Term Memory
 
 **Type:** Spec change  

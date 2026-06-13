@@ -17,7 +17,7 @@ A voice-based travel agent where users speak about a trip and receive AI-generat
 ## 3. Non-goals (MVP)
 
 - Booking flights, hotels, or restaurants
-- Storing user accounts or chat history in a database
+- Storing user accounts or long-term chat history in a database (short-term session history is persisted in Redis)
 - Guaranteed real-time weather or pricing data
 - Multi-language support
 - Full telephony/contact-center integration
@@ -82,14 +82,13 @@ Must instruct the agent to:
 
 - Support **Azure OpenAI** as the model provider for chat generation.
 - Provider endpoint, API key, API version, and deployment name are configurable via environment variables.
-- Single-turn or short multi-turn context within the same `conversation_id` (in-memory for MVP).
-- Single-turn or short multi-turn context within the same `conversation_id` (in-memory for MVP).
+- Single-turn or short multi-turn context within the same `conversation_id` (persisted in Redis, falling back to local memory if Redis is down).
 
 ## 7. Non-functional requirements
 
 | Area | Requirement |
 |------|-------------|
-| Simplicity | Minimal dependencies; no database for MVP |
+| Simplicity | Minimal dependencies; Redis used for session memory with local memory fallback |
 | Latency | Target &lt; 15s for typical replies (depends on local or hosted model runtime) |
 | Security | API key / access credentials server-side only; no secrets in Streamlit client |
 | Config | `.env` for secrets; `.env.example` committed |
@@ -146,6 +145,19 @@ Must instruct the agent to:
 - Speech-to-text and text-to-speech UI polish
 - Live weather API (e.g. OpenWeatherMap)
 - Hotel/places search API
-- Persistent conversations
+- Persistent conversations (via permanent database)
 - Docker Compose for one-command run
-- Real-time voice streaming
+- **Production-Grade RAG System (travel-production.md)**:
+  - Ingestion pipeline (idempotent fetch, validate, clean, normalize, version, enrich).
+  - Chunking layer (structural chunking by headings/lists/tables, 300–800 token size, 50–120 token overlap).
+  - Stable embeddings (cached, batch generation with retries).
+  - Vector Database (metadata filtering, namespaces/tenant isolation, hybrid vector + keyword search).
+  - Reranking layer (Cross-Encoder / Lightweight LLM-based scoring on top-20 candidates to select top-5).
+  - Prompt construction grounding & Hallucination control (refusals, citations, confidence thresholds).
+  - Security (RBAC/ABAC document filters, data sanitization, prompt injection defense).
+  - Logging, monitoring, and continuous RAG evaluation stack (Recall, precision, MRR, correctness, groundedness).
+- **Latency-Optimized Voice-First Agent**:
+  - Full end-to-end streaming pipeline (STT -> LLM -> TTS running concurrently over persistent WebSocket connection).
+  - Azure Speech Service for real-time STT (partial recognition results) and TTS (streaming synthesis).
+  - Voice Activity Detection (VAD) (client or server-side Silero/Azure VAD) for rapid turn-taking without silence timeouts.
+  - Same-region deployment (STT, LLM, TTS, Vector DB, backend in a single Azure region) to target sub-second perceived response latency.

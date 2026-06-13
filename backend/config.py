@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     tts_voice: str | None = None
     tts_rate: int = 180
     tts_volume: float = 1.0
+    redis_url: str = "redis://localhost:6379/0"
+    redis_ttl: int = 7200
 
     model_config = SettingsConfigDict(env_file=ENV_FILE, env_file_encoding="utf-8", extra="ignore")
 

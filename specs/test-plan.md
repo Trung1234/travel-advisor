@@ -57,6 +57,13 @@ No E2E browser automation required for MVP.
 |----|------|----------|
 | AT-12 | Request/response models | Match product-spec JSON examples |
 
+### 2.6 Redis Session Memory
+
+| ID | Case | Expected |
+|----|------|----------|
+| AT-13 | Redis persistence | Client stores list messages in Redis and retrieves them correctly |
+| AT-14 | Redis connection fallback | If Redis client encounters errors, backend falls back gracefully to in-memory store |
+
 **Run command:** `pytest -q` from project root (after implementation).
 
 ---
@@ -76,6 +83,8 @@ No E2E browser automation required for MVP.
 | MT-7 | API docs | Open `http://localhost:8000/docs` | `POST /api/v1/chat` documented; try from Swagger |
 | MT-8 | API down | Stop API, send chat message | Streamlit shows friendly error |
 | MT-9 | Missing provider config | Unset provider vars, restart API | Clear error (no silent hang) |
+| MT-10 | Redis Persistence across restarts | Send 2-3 chat messages, restart the FastAPI server, send another message | Chat history is preserved (persisted in Redis) and the agent remembers previous details |
+| MT-11 | Redis Unavailability Fallback | Stop local Redis service, start FastAPI, send message | App functions normally using local in-memory fallback, warnings printed in console |
 
 Record pass/fail and date in a comment or `specs/change-log.md` when executed.
 
