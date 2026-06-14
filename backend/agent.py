@@ -6,6 +6,7 @@ from openai import AzureOpenAI
 from .config import settings
 from .skill_loader import load_skill
 from .serpapi_client import SerpApiClientError, get_serpapi_results
+from .rag.rag_client import get_rag_context, RAGClientError
 
 
 SKILL_PROMPT = load_skill(settings.skill_file_path)
@@ -35,6 +36,18 @@ def _format_serpapi_context(message: str) -> str:
     return "\n".join(lines)
 
 
+def _format_rag_context(message: str) -> str:
+    """Get RAG context from verified knowledge base. Graceful fallback if RAG is disabled or fails."""
+    if not settings.rag_settings.enabled:
+        return ""
+
+    try:
+        context = get_rag_context(message)
+        return context.formatted_for_prompt()
+    except RAGClientError:
+        return ""
+
+
 @lru_cache
 def get_client() -> AzureOpenAI:
     if not settings.azure_openai_api_key:
@@ -50,6 +63,13 @@ def get_client() -> AzureOpenAI:
 
 def get_reply(message: str, history: list[dict[str, str]]) -> str:
     messages = [*history, {"role": "user", "content": message}]
+
+    # RAG context (structured, cited information from verified knowledge base)
+    rag_context = _format_rag_context(message)
+    if rag_context:
+        messages.insert(-1, {"role": "system", "content": f"[VERIFIED KNOWLEDGE]\n{rag_context}"})
+
+    # SerpAPI context (fresh web data)
     serpapi_context = _format_serpapi_context(message)
     if serpapi_context:
         messages.insert(-1, {"role": "system", "content": serpapi_context})

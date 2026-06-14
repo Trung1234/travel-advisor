@@ -12,6 +12,19 @@ ENV_FILE = PROJECT_ROOT / ".env"
 load_dotenv(ENV_FILE)
 
 
+class RAGSettings(BaseSettings):
+    enabled: bool = False
+    provider: str = "azure"  # or "chroma" for local dev
+    azure_search_endpoint: str | None = None
+    azure_search_api_key: str | None = None
+    index_name: str = "travel-docs"
+    chunk_size: int = 600
+    chunk_overlap: int = 50
+    retrieval_top_k: int = 10
+
+    model_config = SettingsConfigDict(env_prefix="RAG_", extra="ignore")
+
+
 class Settings(BaseSettings):
     azure_openai_api_key: str | None = None
     azure_openai_endpoint: str | None = None
@@ -27,6 +40,9 @@ class Settings(BaseSettings):
     tts_volume: float = 1.0
     redis_url: str = "redis://localhost:6379/0"
     redis_ttl: int = 7200
+
+    # RAG Configuration
+    rag_settings: RAGSettings = RAGSettings()
 
     model_config = SettingsConfigDict(env_file=ENV_FILE, env_file_encoding="utf-8", extra="ignore")
 
