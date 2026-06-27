@@ -4,21 +4,24 @@ import sys
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from openai import OpenAIError
+from fastapi.responses import Response
+from openai import APIError, OpenAIError
 
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-    from backend.agent import get_reply
+    from backend.agent import get_reply, check_guardrails
     from backend.config import settings
     from backend.memory import append_message, get_history
-    from backend.schemas import ChatRequest, ChatResponse, HealthResponse
+    from backend.schemas import ChatRequest, ChatResponse, HealthResponse, TTSRequest, TTSResponse
+    from backend.tts import synthesize_wav_bytes
 else:
-    from .agent import get_reply
+    from .agent import get_reply, check_guardrails
     from .config import settings
     from .memory import append_message, get_history
-    from .schemas import ChatRequest, ChatResponse, HealthResponse
+    from .schemas import ChatRequest, ChatResponse, HealthResponse, TTSRequest, TTSResponse
+    from .tts import synthesize_wav_bytes
 
-app = FastAPI(title="Travel Advisor API", version="0.1.0")
+app = FastAPI(title="Voice Travel Agent API", version="0.2.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -37,14 +40,21 @@ def health() -> HealthResponse:
 @app.post("/api/v1/chat", response_model=ChatResponse)
 def chat(payload: ChatRequest) -> ChatResponse:
     conversation_id = payload.conversation_id or str(uuid.uuid4())
+
+    if not check_guardrails(payload.message):
+        return ChatResponse(
+            reply="Xin lỗi, tôi chỉ có thể hỗ trợ các câu hỏi liên quan đến danh lam thắng cảnh và thông tin du lịch. Vui lòng không hỏi các chủ đề khác như lập trình hay kiến thức khác ngoài du lịch.",
+            conversation_id=conversation_id
+        )
+
     history = get_history(conversation_id)
 
     try:
         reply = get_reply(payload.message, history)
     except RuntimeError as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-    except OpenAIError as exc:
-        raise HTTPException(status_code=502, detail=f"OpenAI request failed: {exc}")
+    except (OpenAIError, APIError) as exc:
+        raise HTTPException(status_code=502, detail=f"Model request failed: {exc}")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Failed to generate reply: {exc}")
 
@@ -52,6 +62,20 @@ def chat(payload: ChatRequest) -> ChatResponse:
     append_message(conversation_id, "assistant", reply)
 
     return ChatResponse(reply=reply, conversation_id=conversation_id)
+
+
+@app.post("/api/v1/tts", response_class=Response)
+def tts(payload: TTSRequest) -> Response:
+    try:
+        audio_bytes = synthesize_wav_bytes(payload.text)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Failed to synthesize speech: {exc}")
+
+    return Response(
+        content=audio_bytes,
+        media_type="audio/wav",
+        headers={"Content-Disposition": 'inline; filename="reply.wav"'},
+    )
 
 
 if __name__ == "__main__":

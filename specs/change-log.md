@@ -6,6 +6,133 @@ Format: newest first.
 
 ---
 
+## [0.4.3] — 2026-06-27 — Contextual follow-up suggestions
+
+**Type:** Fix | Feature
+**Scope:** frontend | product-spec
+
+### Changed
+
+- Follow-up suggestions are now generated from the recent conversation context instead of a fixed list.
+- Fixed duplicate Streamlit widget keys by rendering suggestions once and including message count in widget keys.
+
+### Why
+
+- The user requested suggestions related to the previous answer and reported duplicate widget key errors.
+
+### Impact on implementation
+
+- Suggestions adapt to themes such as family travel, friends/check-in, food, weather, hotels, and general itinerary planning.
+
+---
+## [0.4.2] — 2026-06-27 — Add clickable follow-up suggestions
+
+**Type:** Spec change | Feature
+**Scope:** product-spec | implementation-plan | test-plan | frontend
+
+### Changed
+
+- Added ChatGPT-style follow-up suggestions after assistant replies.
+- Suggestions cover travel companions, best time to go, and hour-by-hour itinerary planning.
+
+### Why
+
+- The user requested recommendation prompts after each answer, similar to ChatGPT.
+
+### Impact on implementation
+
+- Clicking a suggestion sends it as the next chat message and keeps conversation history.
+
+---
+## [0.4.1] — 2026-06-27 — Add local sidebar chat history
+
+**Type:** Spec change | Feature
+**Scope:** product-spec | implementation-plan | test-plan | frontend
+
+### Changed
+
+- Added a ChatGPT-style left sidebar that lists previous local chats.
+- Added local JSON persistence for Streamlit chat history without adding accounts or a database.
+
+### Why
+
+- The user requested saving old conversation information on the left side of the screen.
+
+### Impact on implementation
+
+- Streamlit stores chats in `.travel_advisor_data/conversations.json`, which is ignored by git.
+- Selecting a saved chat restores its messages and conversation id.
+
+---
+
+## [0.4.0] — 2026-06-04 — Replace TripAdvisor with SerpAPI & Add Voice-Enable Button
+
+**Type:** Spec change | Feature
+**Scope:** product-spec | implementation-plan | test-plan | README
+
+### Changed
+
+- Replaced TripAdvisor integration with SerpAPI Google Search integration for destination/hotel/weather/food enrichment.
+- Added support for a native browser speech-to-text (Web Speech API) voice input button in the Streamlit frontend.
+
+### Why
+
+- The user requested swapping the TripAdvisor enrichment with SerpAPI, and adding a voice-enable button in the frontend.
+
+### Impact on implementation
+
+- Backend config and client updated to use SerpAPI endpoints instead of TripAdvisor.
+- A custom browser-based speech component added to the frontend to transcribe and submit user voice input.
+
+---
+
+## [0.3.1] — 2026-06-03 — Add TripAdvisor to voice travel agent
+
+**Type:** Spec change | Fix
+**Scope:** product-spec | implementation-plan | test-plan | README
+
+### Changed
+
+- Added TripAdvisor as the enrichment source for hotel and destination recommendations.
+- Updated the product direction to voice-first travel planning with Qwen/Ollama backend support.
+- Reworked docs and tests to reflect provider abstraction and external travel data retrieval.
+
+### Why
+
+- The user chose TripAdvisor API integration for destination and hotel discovery as part of the new voice travel agent direction.
+
+### Impact on implementation
+
+- Backend needs a TripAdvisor client/service layer and graceful fallback when the API is unavailable.
+- Manual and automated tests should cover enrichment paths as well as fallback behavior.
+- README and env examples should document provider + TripAdvisor configuration instead of Azure-specific setup.
+
+---
+
+## [0.3.0] — 2026-06-03 — Shift to voice travel agent with Qwen/Ollama
+
+**Type:** Spec change | Fix
+**Scope:** product-spec | implementation-plan
+
+### Changed
+
+- Reframed the product from a text-first travel advisor to a voice-first travel agent.
+- Replaced Azure OpenAI integration language with Qwen and Ollama model/provider support.
+- Updated environment variable expectations to reflect configurable local or hosted model backends.
+- Updated the implementation plan to emphasize voice-first UI and provider abstraction.
+
+### Why
+
+- The product direction changed to an audio/voice workflow and should no longer depend on Azure OpenAI.
+
+### Impact on implementation
+
+- Backend should route through a provider abstraction rather than Azure-specific client setup.
+- Frontend and future test scenarios should reflect voice capture / voice reply workflows.
+- Existing Azure OpenAI-specific docs and environment setup should be removed or replaced.
+
+---
+
 ## [0.2.1] — 2026-05-23 — Switch backend to Azure OpenAI
 
 **Type:** Spec change | Fix
@@ -30,7 +157,7 @@ Format: newest first.
 
 ## [0.2.0] — 2026-05-23 — MVP scaffold implemented
 
-**Type:** Feature  
+**Type:** Feature
 **Scope:** implementation-plan | test-plan
 
 ### Added (MVP scaffold)
@@ -57,7 +184,7 @@ Format: newest first.
 
 ## [0.1.0] — 2026-05-23 — Initial specs (no code)
 
-**Type:** Spec created  
+**Type:** Spec created
 **Author:** Spec-driven setup
 
 ### Added (initial spec set)
@@ -94,7 +221,7 @@ Format: newest first.
 ```markdown
 ## [x.y.z] — YYYY-MM-DD — Short title
 
-**Type:** Spec change | Feature | Fix  
+**Type:** Spec change | Feature | Fix
 **Scope:** product-spec | implementation-plan | test-plan
 
 ### Changed

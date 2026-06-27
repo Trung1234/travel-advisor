@@ -1,6 +1,6 @@
-# Travel Advisor AI
+# Voice Travel Agent AI
 
-A simple MVP travel consultant powered by Azure OpenAI. Users chat in a **Streamlit** UI; a **FastAPI** backend exposes an OpenAPI-documented API and runs the agent logic. A **skill file** defines how the agent recommends destinations, hotels, weather, and food.
+A voice-first travel agent MVP powered by **OpenAI**. Users can speak or type in a **Streamlit** UI; a **FastAPI** backend exposes an OpenAPI-documented API and runs the agent logic. A **travel consultant skill** defines how the agent recommends destinations, hotels, weather, and food, and the backend can enrich answers with **SerpAPI** search context and now generates spoken replies through a local backend TTS endpoint.
 
 ## Status
 
@@ -12,21 +12,28 @@ A simple MVP travel consultant powered by Azure OpenAI. Users chat in a **Stream
 |-------|------------|
 | UI | Streamlit (Python) |
 | API | FastAPI + OpenAPI |
-| Agent | Azure OpenAI via OpenAI Python SDK |
+| Agent | OpenAI chat completions |
+| Retrieval | SerpAPI search context for destination/hotel/weather/food enrichment |
+| TTS | Local backend TTS (`pyttsx3`) returning `audio/wav` — configurable via `TTS_ENGINE` |
 | Guidance | Travel consultant skill file (`skills/travel-consultant/SKILL.md`) |
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    User[Traveler] --> UI[Streamlit chat UI<br/>frontend/app.py]
+    User[Traveler] --> UI[Streamlit voice/chat UI<br/>frontend/app.py]
     UI -->|POST /api/v1/chat| API[FastAPI backend<br/>backend/main.py]
+    UI -->|POST /api/v1/tts| API
     API --> Memory[In-memory conversation store<br/>backend/memory.py]
     API --> Skill[Travel consultant skill<br/>skills/travel-consultant/SKILL.md]
-    API --> Agent[Agent wrapper<br/>backend/agent.py]
-    Agent -->|Responses API| Azure[Azure OpenAI GPT deployment]
-    Azure --> Agent
+    API --> Agent[Agent orchestration<br/>backend/agent.py]
+    API --> TTS[Local TTS engine<br/>backend/tts.py]
+    Agent --> Provider[OpenAI<br/>chat completions]
+    Agent --> SerpAPI[SerpAPI search context]
+    Provider --> Agent
+    SerpAPI --> Agent
     Agent --> API
+    TTS --> API
     API --> UI
     UI --> User
 ```
@@ -49,14 +56,16 @@ travel-advisor/
 ## Prerequisites
 
 - Python 3.11+
-- Azure OpenAI resource endpoint, API key, and GPT deployment name
+- OpenAI API access
+- SerpAPI credentials if you want destination/hotel/weather/food enrichment
+- Platform TTS support for `pyttsx3` (Windows Speech API, macOS `nsss`, Linux `espeak`)
 
 ## Getting started
 
 1. Create and activate a Python virtual environment.
 2. Install dependencies:
    - `pip install -r requirements.txt`
-3. Copy `.env.example` to `.env` and set `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`, and `AZURE_OPENAI_DEPLOYMENT`.
+3. Copy `.env.example` to `.env` and set `OPENAI_API_KEY`, optional `OPENAI_MODEL`, SerpAPI, and TTS variables.
 4. Start API:
    - `uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000`
 5. Start UI:
@@ -67,6 +76,7 @@ travel-advisor/
 
 - Health check: `GET /health`
 - Chat endpoint: `POST /api/v1/chat`
+- TTS endpoint: `POST /api/v1/tts`
 - Docs: `/docs`
 
 ## Testing

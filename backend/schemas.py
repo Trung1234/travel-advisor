@@ -15,3 +15,14 @@ class ChatResponse(BaseModel):
 
 class HealthResponse(BaseModel):
     status: str
+
+
+class TTSRequest(BaseModel):
+    text: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
+
+
+class TTSResponse(BaseModel):
+    content_type: str = "audio/wav"
+    filename: str = "reply.wav"
+    size_bytes: int
+    sample_rate: int | None = None

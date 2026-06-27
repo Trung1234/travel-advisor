@@ -1,4 +1,4 @@
-# Implementation plan — Travel Advisor MVP
+# Implementation plan — Voice Travel Agent MVP
 
 **Prerequisite:** Specs approved. Do not start coding until product-spec and this plan are agreed.
 
@@ -21,10 +21,10 @@
 fastapi
 uvicorn[standard]
 streamlit
-openai
 httpx
 pydantic-settings
 python-dotenv
+ollama
 ```
 
 ---
@@ -44,9 +44,9 @@ No code beyond the markdown skill file in this phase.
 
 | # | Task | Output |
 |---|------|--------|
-| 2.1 | `backend/config.py` — settings from env | `Settings` class |
+| 2.1 | `backend/config.py` — settings from env | OpenAI + app settings |
 | 2.2 | `backend/skill_loader.py` — read SKILL.md | String for system prompt |
-| 2.3 | `backend/agent.py` — Azure OpenAI chat call with skill + history | `get_reply(message, history)` |
+| 2.3 | `backend/agent.py` — OpenAI chat call with skill + history | `get_reply(message, history)` |
 | 2.4 | `backend/memory.py` — in-memory dict by `conversation_id` | MVP session store |
 | 2.5 | `backend/main.py` — FastAPI app, CORS, routes | `/health`, `/api/v1/chat` |
 | 2.6 | `backend/schemas.py` — Pydantic request/response models | OpenAPI types |
@@ -75,9 +75,9 @@ backend/
 | 3.1 | `frontend/app.py` — chat UI with `st.chat_message` | Session messages |
 | 3.2 | `frontend/api_client.py` — POST to `/api/v1/chat` via httpx | Error handling |
 | 3.3 | Store `conversation_id` in `st.session_state` | Thread continuity |
-| 3.4 | Page title and one-line instructions | US-1 |
-
-**Run:** `streamlit run frontend/app.py`
+| 3.4 | Page title and chat box | US-1 |
+| 3.5 | Sidebar saved chats with local JSON persistence | US-8 |
+| 3.6 | Clickable follow-up suggestions after assistant replies | US-12 |
 
 ---
 
@@ -85,7 +85,7 @@ backend/
 
 | # | Task | Output |
 |---|------|--------|
-| 4.1 | Verify end-to-end: UI → API → Azure OpenAI → UI | Demo-ready |
+| 4.1 | Verify end-to-end: UI → API → OpenAI → UI | Demo-ready |
 | 4.2 | README run instructions match actual commands | Docs accurate |
 | 4.3 | Log completion in `specs/change-log.md` | Traceability |
 
@@ -96,7 +96,7 @@ backend/
 | # | Task | Output |
 |---|------|--------|
 | 5.1 | `tests/test_health.py` | Health endpoint |
-| 5.2 | `tests/test_chat.py` — mock Azure OpenAI | Chat contract without live API |
+| 5.2 | `tests/test_chat.py` — mock model provider | Chat contract without live API |
 | 5.3 | Manual scenarios from test-plan | Checklist signed off |
 
 **Run tests:** `pytest` (add `pytest`, `pytest-asyncio` to dev deps if needed)
@@ -110,7 +110,7 @@ backend/
 | API port | 8000 |
 | Streamlit port | 8501 |
 | `API_BASE_URL` | `http://localhost:8000` |
-| `AZURE_OPENAI_API_VERSION` | `2024-02-15-preview` |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` |
 
 ---
 
@@ -118,7 +118,7 @@ backend/
 
 | Risk | Mitigation |
 |------|------------|
-| Azure OpenAI rate limits / cost | Use an appropriately sized deployment; document usage |
+| Local model availability / latency | Make provider configurable and document Ollama startup |
 | Hallucinated hotels/prices | Skill requires disclaimers; no “book now” claims |
 | CORS issues locally | Allow `http://localhost:8501` in FastAPI |
 | Skill file not found | Fail fast at startup with clear error |
